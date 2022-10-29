@@ -6,36 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-// void main() async {
-//   // WidgetsFlutterBinding.ensureInitialized();
-//   // await Firebase.initializeApp(
-//   //   options: DefaultFirebaseOptions.currentPlatform,
-//   // );
-//   runApp(const MyApp());
-// }
-
-
 class monthPage extends StatelessWidget {
   const monthPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // return MaterialApp(
-    //   title: 'Welcome to Flutter',
-    //   home: Scaffold(
-    //     appBar: AppBar(
-    //       title: const Text('Welcome to Flutter'),
-    //     ),
-    //     body: Column(
-    //       mainAxisAlignment: MainAxisAlignment.center,
-    //       children: [
-    //         MonthCard(),
-    //         MonthCard(),
-    //         MonthCard(),
-    //       ],
-    //     ),
-    //   ),
-    // );
     return Scaffold(
       appBar: AppBar(
         title: const Text('Welcome to Flutter'),

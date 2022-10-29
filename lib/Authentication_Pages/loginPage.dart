@@ -2,7 +2,9 @@ import 'package:budget_app/Authentication_Pages/registrationPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
+import '../Clasess/AuthenticationService.dart';
 import '../months.dart';
 
 class LoginPage extends StatefulWidget {
@@ -173,12 +175,15 @@ class _LoginPageState extends State<LoginPage> {
             .signInWithEmailAndPassword(email: email, password: password)
             .then((uid) => {
                   Fluttertoast.showToast(msg: "Login Successful"),
-                  // Navigator.of(context).pushReplacement(
-                  //     MaterialPageRoute(builder: (context) => monthPage())
-                  // ),
-            Navigator.pushNamed(context, '/months'),
-
+          Navigator.pop(context),
+          Navigator.pushNamed(context, '/months'),
         });
+
+        // context.read<AuthenticationService>().signIn(
+        //     email: email,
+        //     password: password,
+        //     context: context
+        // );
       } on FirebaseAuthException catch (error) {
         switch (error.code) {
           case "invalid-email":
