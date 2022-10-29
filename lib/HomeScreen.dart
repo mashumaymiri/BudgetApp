@@ -14,6 +14,21 @@ class monthPage extends StatefulWidget {
 
 List<Widget> MonthsChildren = [];
 
+Map<int, String> monthMap = {
+  1: "January",
+  2: 'February',
+  3: 'March',
+  4: 'April',
+  5: 'May',
+  6: 'June',
+  7: 'July',
+  8: 'August',
+  9: 'September',
+  10: 'October',
+  11: 'November',
+  12: 'December'
+};
+
 class _monthPage extends State<monthPage> {
   //const monthPage({super.key});
 
@@ -29,19 +44,27 @@ class _monthPage extends State<monthPage> {
   // }).toList(),
   // );
   // },
+
   void initState() {
     super.initState();
     MonthsChildren = [];
     for (int i = 1; i <= 12; i++) {
       var month = Month();
-      month.name = "month $i";
+      month.name = monthMap[i];
       month.order = i;
       month.budget = 5000;
       month.year = "2022";
-      month.expenses = [Expense(), Expense(), Expense()];
+      month.expenses = [
+        Expense(name: "Gas", cost: 870.0, month: i, id: "Gas"),
+        Expense(name: "Food", cost: 1300.0, month: i, id: "Food"),
+        Expense(name: "SIM", cost: 250.0, month: i, id: "SIM")
+      ];
+      // month.expenses![1] = Expense(name: "Gas", cost: 870.0, month: i, id: "Gas");
+      // month.expenses![2] = Expense(name: "Food", cost: 1300.0, month: i, id: "Food");
+      // month.expenses![3] = Expense(name: "SIM", cost: 250.0, month: i, id: "SIM");
+
       MonthsChildren.add(MonthCard(month: month));
     }
-    //print(MonthsChildren);
   }
 
   @override
@@ -69,15 +92,18 @@ class _monthPage extends State<monthPage> {
 
 class MonthCard extends StatefulWidget {
   Month month;
+
   MonthCard({super.key, required this.month});
+
   @override
   State<MonthCard> createState() => _MonthCardState();
 }
 
 class _MonthCardState extends State<MonthCard> {
-
   @override
   Widget build(BuildContext context) {
+    final name = widget.month.name;
+
     return Container(
       child: Center(
         child: Card(
@@ -91,10 +117,10 @@ class _MonthCardState extends State<MonthCard> {
 
               Navigator.pushNamed(context, '/budget', arguments: widget.month);
             },
-            child: const SizedBox(
+            child: SizedBox(
               width: 300,
               height: 100,
-              child: Center(child: Text('Jan')),
+              child: Center(child: Text(name!)),
             ),
           ),
         ),
