@@ -5,6 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'Clasess/AuthenticationService.dart';
 
 class monthPage extends StatelessWidget {
   const monthPage({super.key});
@@ -23,13 +25,19 @@ class monthPage extends StatelessWidget {
           MonthCard(),
         ],
       ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.read<AuthenticationService>().signOut(context);
+        },
+        child: Icon(Icons.logout_rounded),
+        backgroundColor: Colors.green,
+      ),
     );
   }
-
 }
 
 class MonthCard extends StatefulWidget {
-
   const MonthCard({Key? key}) : super(key: key);
 
   @override
@@ -37,8 +45,6 @@ class MonthCard extends StatefulWidget {
 }
 
 class _MonthCardState extends State<MonthCard> {
-
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -55,9 +61,7 @@ class _MonthCardState extends State<MonthCard> {
             child: SizedBox(
               width: 300,
               height: 100,
-              child: Center(
-                  child: Text('Jan')
-              ),
+              child: Center(child: Text('Jan')),
             ),
           ),
         ),
@@ -65,3 +69,11 @@ class _MonthCardState extends State<MonthCard> {
     );
   }
 }
+
+// floatingActionButton: FloatingActionButton(
+// onPressed: () {
+// context.read<AuthenticationService>().signOut();
+// },
+// child: Icon(Icons.logout_rounded),
+// backgroundColor: Colors.green,
+// ),

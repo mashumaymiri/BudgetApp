@@ -5,7 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../Clasess/user_model.dart';
-import '../months.dart';
+import '../HomeScreen.dart';
 
 // https://github.com/backslashflutter/email_password_flutter_firebase/blob/main/lib/screens/registration_screen.dart#L13
 class RegisterPage extends StatefulWidget {

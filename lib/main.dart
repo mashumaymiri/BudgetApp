@@ -67,7 +67,7 @@ class AuthenticatorWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    context.read<AuthenticationService>().signOut();
+   //context.read<AuthenticationService>().signOut();
 
     final firebaseuser = context.watch<User?>();
     var temp = null;
@@ -89,6 +89,7 @@ class AuthenticatorWrapper extends StatelessWidget {
         "/months": (context) => const monthPage(),
         "/register": (context) => const RegisterPage(),
         "/budget": (context) => const BudgetPage(),
+        "/loginPage": (context) => const LoginPage(),
       },
     );
   }
