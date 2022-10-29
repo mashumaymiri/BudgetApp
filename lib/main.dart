@@ -12,6 +12,7 @@ import 'HomeScreen.dart';
 import 'budget.dart';
 import 'firebase_options.dart';
 import 'package:provider/provider.dart';
+import 'addPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -90,6 +91,7 @@ class AuthenticatorWrapper extends StatelessWidget {
         "/register": (context) => const RegisterPage(),
         "/budget": (context) => const BudgetPage(),
         "/loginPage": (context) => const LoginPage(),
+        "/addPage": (context) => const AddPage(),
       },
     );
   }
