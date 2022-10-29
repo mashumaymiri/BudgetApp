@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:budget_app/Authentication_Pages/loginPage.dart';
+import 'package:budget_app/Clasess/Month.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -87,9 +88,9 @@ class AuthenticatorWrapper extends StatelessWidget {
       ),
       routes: {
         // "/": (context) => const LoginPage(),
-        "/months": (context) => const monthPage(),
+        "/months": (context) => monthPage(),
         "/register": (context) => const RegisterPage(),
-        "/budget": (context) => const BudgetPage(),
+        "/budget": (context) => BudgetPage(),
         "/loginPage": (context) => const LoginPage(),
         "/addPage": (context) => const AddPage(),
       },
