@@ -1,7 +1,3 @@
-// Copyright 2018 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,7 +21,7 @@ class monthPage extends StatelessWidget {
           MonthCard(),
         ],
       ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           context.read<AuthenticationService>().signOut(context);
@@ -58,7 +54,7 @@ class _MonthCardState extends State<MonthCard> {
               debugPrint('Tapped');
               Navigator.pushNamed(context, '/budget');
             },
-            child: SizedBox(
+            child: const SizedBox(
               width: 300,
               height: 100,
               child: Center(child: Text('Jan')),
@@ -69,11 +65,3 @@ class _MonthCardState extends State<MonthCard> {
     );
   }
 }
-
-// floatingActionButton: FloatingActionButton(
-// onPressed: () {
-// context.read<AuthenticationService>().signOut();
-// },
-// child: Icon(Icons.logout_rounded),
-// backgroundColor: Colors.green,
-// ),

@@ -1,7 +1,3 @@
-// Copyright 2018 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,6 +10,80 @@ class BudgetPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Center(child: Text('January'),),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          showModalBottomSheet(
+              isScrollControlled: true,
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: Colors.black),
+                borderRadius: const BorderRadius.all(
+                    Radius.circular(12)),
+              ),
+              context: context,
+              builder: (builder) => Container(
+                height: 340,
+                child: Column(children: [
+                  Column(children: [
+                    SizedBox(
+                      height: 45,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          // color: tColor().cardtop,
+                          border: Border(
+                            bottom: BorderSide(
+                                color: Colors.black,
+                                width: 1.0),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment
+                              .center,
+                          crossAxisAlignment:
+                          CrossAxisAlignment
+                              .start,
+                          children: [
+                            Container(
+                              margin:
+                              EdgeInsets.only(
+                                  left: 0),
+                              decoration:
+                              BoxDecoration(),
+                              child: Text(
+                                "\nAdd expense",
+                                textAlign: TextAlign
+                                    .center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(
+                          bottom: 40),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Center(
+                            child: Container(
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ]),
+                ]),
+              ));
+        },
+        child: Icon(Icons.add),
       ),
       body: Column(children: [
         Title(
