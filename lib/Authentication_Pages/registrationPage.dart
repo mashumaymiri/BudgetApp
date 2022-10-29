@@ -301,9 +301,11 @@ class _RegisterPageState extends State<RegisterPage> {
         .set(userModel.toMap());
     Fluttertoast.showToast(msg: "Account created successfully :) ");
 
-    Navigator.pushAndRemoveUntil(
-        (context),
-        MaterialPageRoute(builder: (context) => monthPage()),
-            (route) => false);
+    // Navigator.pushAndRemoveUntil(
+    //     (context),
+    //     MaterialPageRoute(builder: (context) => monthPage()),
+    //         (route) => false);
+    Navigator.pushNamed(context, '/months');
+
   }
 }

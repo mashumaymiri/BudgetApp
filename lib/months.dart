@@ -20,25 +20,35 @@ class monthPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Welcome to Flutter',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Welcome to Flutter'),
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            MonthCard(),
-            MonthCard(),
-            MonthCard(),
-          ],
-        ),
+    // return MaterialApp(
+    //   title: 'Welcome to Flutter',
+    //   home: Scaffold(
+    //     appBar: AppBar(
+    //       title: const Text('Welcome to Flutter'),
+    //     ),
+    //     body: Column(
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       children: [
+    //         MonthCard(),
+    //         MonthCard(),
+    //         MonthCard(),
+    //       ],
+    //     ),
+    //   ),
+    // );
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Welcome to Flutter'),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          MonthCard(),
+          MonthCard(),
+          MonthCard(),
+        ],
       ),
     );
-    // return Scaffold(
-    //   body: LoginWidget(),
-    // );
   }
 
 }
@@ -63,7 +73,10 @@ class _MonthCardState extends State<MonthCard> {
           clipBehavior: Clip.hardEdge,
           child: InkWell(
             splashColor: Colors.blue.withAlpha(30),
-            onTap: () => debugPrint('Tapped'),
+            onTap: () {
+              debugPrint('Tapped');
+              Navigator.pushNamed(context, '/budget');
+          },
             child: SizedBox(
               width: 300,
               height: 100,

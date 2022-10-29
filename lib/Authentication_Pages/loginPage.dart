@@ -136,13 +136,15 @@ class _LoginPageState extends State<LoginPage> {
                           const Text("Don't have an account? "),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                           const RegisterPage()
-                                  )
-                              );
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) =>
+                              //              const RegisterPage()
+                              //     )
+                              // );
+                              Navigator.pushNamed(context, '/register');
+
                             },
                             child: const Text(
                               "Sign up",
@@ -171,10 +173,12 @@ class _LoginPageState extends State<LoginPage> {
             .signInWithEmailAndPassword(email: email, password: password)
             .then((uid) => {
                   Fluttertoast.showToast(msg: "Login Successful"),
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => monthPage())
-                  ),
-                });
+                  // Navigator.of(context).pushReplacement(
+                  //     MaterialPageRoute(builder: (context) => monthPage())
+                  // ),
+            Navigator.pushNamed(context, '/months'),
+
+        });
       } on FirebaseAuthException catch (error) {
         switch (error.code) {
           case "invalid-email":
