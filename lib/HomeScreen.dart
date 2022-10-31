@@ -1,11 +1,13 @@
-import 'package:budget_app/Clasess/Expenses.dart';
+import 'dart:math';
+
 import 'package:budget_app/Clasess/Month.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'Clasess/AuthenticationService.dart';
+import 'Clasess/Expenses.dart';
 
 class monthPage extends StatefulWidget {
   @override
@@ -29,42 +31,92 @@ Map<int, String> monthMap = {
   12: 'December'
 };
 
+Map<int, List<Expense>> mapmonthlist = {};
+
 class _monthPage extends State<monthPage> {
-  //const monthPage({super.key});
+  final _auth = FirebaseAuth.instance;
 
-  //FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-  //
-  // var fasd = firebaseFirestore.collection('Months').snapshots();
+  void fetchData() async {
+    // print("Fetching Data!");
+    Map<int, Month> mapmonthsf = {};
+    MonthsChildren = [];
 
-  // return ListView(
-  // children: snapshot.data.docs.map((document) {
-  // return Container(
-  // child: Center(child: Text(document['text'])),
-  // );
-  // }).toList(),
-  // );
-  // },
+    for (int i = 1; i <= 12; i++) {
+      mapmonthlist[i] = [];
+    }
+    var dataM = await FirebaseFirestore.instance.collection("Months").get();
+    for (int i = 0; i < dataM.docs.length; i++) {
+      if (_auth.currentUser?.uid == dataM.docs[i].data()['uid']) {
+        //print(dataM.docs[i].data()['budget']);
+        Month model = Month(
+            name: dataM.docs[i].data()['name'],
+            order: dataM.docs[i].data()['order'],
+            budget: dataM.docs[i].data()['budget'],
+            year: dataM.docs[i].data()['year'],
+            expenses: [],//dataM.docs[i].data()['expenses'] as List<Expense>?,
+            docid: dataM.docs[i].data()['docid'],
+            uid: dataM.docs[i].data()['uid']);
+        mapmonthsf[dataM.docs[i].data()['order']] = model;
+      }
+    }
+    for (int i = 1; i <= 12; i++) {
+      if (mapmonthsf[i] == null) {
+        FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+        final docUser = FirebaseFirestore.instance
+            .collection("Months")
+            .doc();
+        Month expenseModel = Month(
+            name: monthMap[i],
+            order: i,
+            budget: 5000,
+            year: "2022",
+            expenses: [],
+            uid: _auth.currentUser?.uid,
+            docid: docUser.id
+        );
+        mapmonthsf[i] = expenseModel;
+        await firebaseFirestore
+            .collection("Months")
+            .doc(expenseModel.docid)
+            .set(expenseModel.toMap());
+        // Fluttertoast.showToast(msg: "Expense Saved Successfully :) ");
+      }
+    }
+
+    var data = await FirebaseFirestore.instance.collection("Expense").get();
+    for (int i = 0; i < data.docs.length; i++) {
+      if (_auth.currentUser?.uid == data.docs[i].data()['uid']) {
+        Expense model = Expense(
+            name: data.docs[i].data()['name'],
+            cost: data.docs[i].data()['cost'],
+            month: data.docs[i].data()['month'],
+            docid: data.docs[i].data()['docid'],
+            uid: data.docs[i].data()['uid']);
+        mapmonthlist[model.month]?.add(model);
+      }
+    }
+    setState(() {
+      for (int i = 1; i <= 12; i++) {
+        Month month = Month(
+            name: monthMap[i],
+            order: i,
+            budget: mapmonthsf[i]?.budget,
+            year: mapmonthsf[i]?.year,
+            expenses: mapmonthlist[i],
+            uid: _auth.currentUser?.uid,
+            docid: mapmonthsf[i]?.docid
+        );
+
+        // month.expenses = mapmonthlist[i];
+        MonthsChildren.add(MonthCard(month: month, fetch: fetchData));
+      }
+    });
+  }
 
   void initState() {
     super.initState();
     MonthsChildren = [];
-    for (int i = 1; i <= 12; i++) {
-      var month = Month();
-      month.name = monthMap[i];
-      month.order = i;
-      month.budget = 5000;
-      month.year = "2022";
-      month.expenses = [
-        Expense(name: "Gas", cost: 870.0, month: i, id: "Gas"),
-        Expense(name: "Food", cost: 1300.0, month: i, id: "Food"),
-        Expense(name: "SIM", cost: 250.0, month: i, id: "SIM")
-      ];
-      // month.expenses![1] = Expense(name: "Gas", cost: 870.0, month: i, id: "Gas");
-      // month.expenses![2] = Expense(name: "Food", cost: 1300.0, month: i, id: "Food");
-      // month.expenses![3] = Expense(name: "SIM", cost: 250.0, month: i, id: "SIM");
-
-      MonthsChildren.add(MonthCard(month: month));
-    }
+    fetchData();
   }
 
   @override
@@ -92,8 +144,9 @@ class _monthPage extends State<monthPage> {
 
 class MonthCard extends StatefulWidget {
   Month month;
+  var fetch;
 
-  MonthCard({super.key, required this.month});
+  MonthCard({super.key, required this.month, required this.fetch});
 
   @override
   State<MonthCard> createState() => _MonthCardState();
@@ -112,10 +165,10 @@ class _MonthCardState extends State<MonthCard> {
           child: InkWell(
             splashColor: Colors.blue.withAlpha(30),
             onTap: () {
-              debugPrint('Tapped');
-              print(widget.month.budget);
-
-              Navigator.pushNamed(context, '/budget', arguments: widget.month);
+              // await widget.fetch();
+              // widget.month.expenses = mapmonthlist[widget.month.order];
+              Navigator.pushNamed(context, '/budget', arguments: widget.month)
+                  .then((value) => widget.fetch());
             },
             child: SizedBox(
               width: 300,

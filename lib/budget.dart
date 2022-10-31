@@ -1,73 +1,114 @@
 import 'dart:math';
 
-import 'package:budget_app/Clasess/Expenses.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import 'Clasess/Expenses.dart';
 import 'Clasess/Month.dart';
 import 'HomeScreen.dart';
 
 List<Widget> expensesCards = [];
+GlobalKey<BudgetPageState>? Gk;
 
 class BudgetPage extends StatefulWidget {
-  //const MonthCard({Key? key}) : super(key: key);
   Month? month;
 
   BudgetPage({super.key, this.month});
 
   @override
-  _BudgetPageState createState() => _BudgetPageState();
+  BudgetPageState createState() => BudgetPageState();
 }
 
-class _BudgetPageState extends State<BudgetPage> {
+class BudgetPageState extends State<BudgetPage> {
+  bool initialized = false;
+  GlobalKey<BudgetPageState>? gk;
+  GlobalKey<BudgetPageState> globalKey = new GlobalKey<BudgetPageState>();
+  final _auth = FirebaseAuth.instance;
+
+  // editing controller
+  final TextEditingController nameCont = TextEditingController();
+  final TextEditingController costCont = TextEditingController();
+
+  @override
   void initState() {
-    print(widget.month?.budget);
-    print(widget.month);
-    //print(ModalRoute.of(context)!.settings.arguments as Month);
+    super.initState();
+    // print(widget.month?.budget);
+    // print(widget.month);
   }
+
+  void reset(eC, index) {
+    // print("test1");
+    setState(() {
+      // print("test2");
+      // expensesCards.add(eC);
+      expensesCards[index] = eC;
+    });
+  }
+
+  void delete(index) {
+    setState(() {
+      expensesCards.removeAt(index);
+    });
+  }
+
+  final TextEditingController budgetcont = TextEditingController();
+  int budget = 5000;
 
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as Month;
-    print(args.budget);
-    var budget = args.budget!;
     var expenses = args.expenses!;
-    final MONTH_NAME = args.name;
+    final monthnumber = args.order;
+    final MONTHNAME = args.name;
 
-    List<Widget> expensesCards = [];
-    // for (var expense in expenses) {
-    //   expensesCards.add(ExpanseCard(
-    //     name: expense.name,
-    //     cost: expense.cost,
-    //     month: expense.month,
-    //     id: expense.id,
-    //     index: expensesCards.length + 1
-    //   ));
-    // }
-    for (int i=0;i<expenses.length;i++) {
-      var expense = expenses.elementAt(i);
-      expensesCards.add(ExpanseCard(
-          name: expense?.name,
-          cost: expense?.cost,
-          month: expense?.month,
-          id: expense?.id,
-          index: i
-      ));
+    // List<Widget> expensesCards = [];
+    if (!initialized) {
+      initialized = true;
+      budget = args.budget!;
+
+      // print(_auth.currentUser?.uid);
+      expensesCards = [];
+
+      setState(() {
+        for (int i = 0; i < expenses.length; i++) {
+          var expense = expenses.elementAt(i);
+          expensesCards.add(ExpanseCard(
+            name: expense.name,
+            cost: expense.cost,
+            month: expense.month,
+            docid: expense.docid,
+            uid: expense.uid,
+            index: i,
+            reset: reset,
+            delete: delete,
+          ));
+        }
+      });
     }
 
-    print(expenses.length);
-    print(expenses[0]);
-
-
+    double sumExpense = 0;
+    for (int i = 0; i < expensesCards.length; i++) {
+      sumExpense += (expensesCards[i] as ExpanseCard).cost!;
+    }
+    double diffrenceEB = budget - sumExpense;
+    String dificon = "";
+    MaterialColor difcolor = Colors.green;
+    if (diffrenceEB > 0) {
+      dificon = "+";
+    } else {
+      dificon = "-";
+      difcolor = Colors.red;
+      diffrenceEB = diffrenceEB * -1;
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: Center(
-          child: Text(MONTH_NAME!),
+          child: Text(MONTHNAME!),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -76,9 +117,9 @@ class _BudgetPageState extends State<BudgetPage> {
           showModalBottomSheet(
               isScrollControlled: true,
               backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
+              shape: const RoundedRectangleBorder(
                 side: BorderSide(color: Colors.black),
-                borderRadius: const BorderRadius.all(Radius.circular(12)),
+                borderRadius: BorderRadius.all(Radius.circular(12)),
               ),
               context: context,
               builder: (builder) => Container(
@@ -88,7 +129,7 @@ class _BudgetPageState extends State<BudgetPage> {
                       SizedBox(
                         height: 45,
                         child: Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             // color: tColor().cardtop,
                             border: Border(
                               bottom:
@@ -102,7 +143,7 @@ class _BudgetPageState extends State<BudgetPage> {
                               Container(
                                 margin: EdgeInsets.only(left: 0),
                                 decoration: BoxDecoration(),
-                                child: Text(
+                                child: const Text(
                                   "\nAdd expense",
                                   textAlign: TextAlign.center,
                                 ),
@@ -115,13 +156,13 @@ class _BudgetPageState extends State<BudgetPage> {
                         padding: EdgeInsets.only(bottom: 40),
                         child: Column(
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             Center(
                               child: Container(),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 5,
                             ),
                           ],
@@ -135,6 +176,8 @@ class _BudgetPageState extends State<BudgetPage> {
                             border: UnderlineInputBorder(),
                             labelText: 'Expense',
                           ),
+                          textInputAction: TextInputAction.next,
+                          controller: nameCont,
                         ),
                       ),
 
@@ -144,17 +187,76 @@ class _BudgetPageState extends State<BudgetPage> {
                         child: TextFormField(
                           decoration: const InputDecoration(
                             border: UnderlineInputBorder(),
-                            labelText: 'Budget',
+                            labelText: 'Cost',
                           ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          textInputAction: TextInputAction.done,
+                          controller: costCont,
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.all(10),
                         child: ElevatedButton(
-                          onPressed: () {
-                            debugPrint('submit');
+                          onPressed: () async {
+                            if (nameCont.text.isEmpty ||
+                                costCont.text.isEmpty) {
+                              Fluttertoast.showToast(
+                                  msg: "Please Fill all the info!");
+                              return;
+                            }
+
+                            final name = nameCont.text;
+                            final double cost = double.parse(costCont.text);
+
+                            FirebaseFirestore firebaseFirestore =
+                                FirebaseFirestore.instance;
+                            final docUser = FirebaseFirestore.instance
+                                .collection("Expense")
+                                .doc();
+
+                            Expense expenseModel = Expense(
+                                name: name,
+                                cost: cost,
+                                month: monthnumber,
+                                // id:  "$name _ $cost"
+                                uid: _auth.currentUser?.uid,
+                                docid: docUser.id);
+
+                            //writing all the values
+                            // userModel.email = user!.email;
+                            // userModel.uid = user.uid;
+                            // userModel.firstName = firstNameCont.text;
+                            // userModel.secondName =
+                            //     secondNameCont.text;
+
+                            await firebaseFirestore
+                                .collection("Expense")
+                                .doc(expenseModel.docid)
+                                .set(expenseModel.toMap());
+                            Fluttertoast.showToast(
+                                msg: "Expense added Successfully :) ");
+                            setState(() {
+                              expensesCards.add(ExpanseCard(
+                                name: expenseModel.name,
+                                cost: expenseModel.cost,
+                                month: expenseModel.month,
+                                uid: expenseModel.uid,
+                                docid: expenseModel.docid,
+                                index: expensesCards.length,
+                                reset: reset,
+                                delete: delete,
+                              ));
+                            });
+
+                            Navigator.pop(context);
                           },
                           child: const Text('Submit'),
+                          style:
+                              ElevatedButton.styleFrom(primary: Colors.green),
                         ),
                       ),
                       // ],
@@ -173,16 +275,160 @@ class _BudgetPageState extends State<BudgetPage> {
             color: Colors.black,
             child: Center(
               child: Text(
-                '\$$budget',
-                style: TextStyle(fontSize: 75),
+                '$dificon\$$diffrenceEB',
+                style: TextStyle(fontSize: 75, color: difcolor),
               ),
             ),
           ),
-          const Center(
-            child: Text(
-              'Total Budget',
-              style: TextStyle(fontSize: 30),
-            ),
+          Row(
+            children: [
+              Padding(
+                  padding: EdgeInsets.only(left: 70),
+                  child: TextButton(
+                    child: Text('Budget: \$$budget',
+                        style: const TextStyle(fontSize: 15)),
+                    onPressed: () {
+                      print("pressedbudget");
+                      showModalBottomSheet(
+                          isScrollControlled: true,
+                          backgroundColor: Colors.white,
+                          shape: const RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.black),
+                            borderRadius: BorderRadius.all(Radius.circular(12)),
+                          ),
+                          context: context,
+                          builder: (builder) => Container(
+                                height: 340,
+                                child: Column(children: [
+                                  Column(children: [
+                                    SizedBox(
+                                      height: 45,
+                                      child: Container(
+                                        decoration: const BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                                color: Colors.black,
+                                                width: 1.0),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              margin: EdgeInsets.only(left: 0),
+                                              decoration: BoxDecoration(),
+                                              child: const Text(
+                                                "\nEdit budget",
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.only(bottom: 40),
+                                      child: Column(
+                                        children: [
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Center(
+                                            child: Container(),
+                                          ),
+                                          const SizedBox(
+                                            height: 5,
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 4, vertical: 8),
+                                            child: TextFormField(
+                                              decoration: const InputDecoration(
+                                                border: UnderlineInputBorder(),
+                                                labelText: 'Budget',
+                                              ),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              inputFormatters: <
+                                                  TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(r'[0-9]')),
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly
+                                              ],
+                                              controller: budgetcont,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 120, vertical: 10),
+                                            child: Padding(
+                                              padding: EdgeInsets.all(10),
+                                              child: ElevatedButton(
+                                                onPressed: () async {
+                                                  if (budgetcont.text.isEmpty) {
+                                                    Fluttertoast.showToast(
+                                                        msg:
+                                                            "Please Fill all the info!");
+                                                    return;
+                                                  }
+                                                  final int Budget = int.parse(
+                                                      budgetcont.text);
+
+                                                  FirebaseFirestore
+                                                      firebaseFirestore =
+                                                      FirebaseFirestore
+                                                          .instance;
+
+                                                  Month expenseModel = Month(
+                                                      name: args.name,
+                                                      order: args.order,
+                                                      budget: Budget,
+                                                      year: args.year,
+                                                      expenses: [],
+                                                      //dataM.docs[i].data()['expenses'] as List<Expense>?,
+                                                      docid: args.docid,
+                                                      uid: args.uid);
+
+                                                  await firebaseFirestore
+                                                      .collection("Months")
+                                                      .doc(args.docid)
+                                                      .set(
+                                                          expenseModel.toMap());
+                                                  Fluttertoast.showToast(
+                                                      msg:
+                                                          "Budget Saved Successfully :) ");
+
+                                                  setState(() {
+                                                    budget = Budget;
+                                                  });
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Submit'),
+                                                style: ElevatedButton.styleFrom(
+                                                    primary: Colors.green),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ]),
+                                ]),
+                              ));
+                    },
+                    style: TextButton.styleFrom(primary: Colors.black),
+                  )),
+              Padding(
+                  padding: EdgeInsets.only(left: 65),
+                  child: Text(
+                    'Expenses: $sumExpense',
+                    style: TextStyle(fontSize: 15, color: Colors.red),
+                  )),
+            ],
           ),
           const Divider(
             height: 20,
@@ -191,53 +437,68 @@ class _BudgetPageState extends State<BudgetPage> {
             color: Colors.black,
           ),
           Expanded(
-            child: Column(
-              children: expensesCards,
-            ),
-          )
+              child: ListView.builder(
+            itemCount: expensesCards.length,
+            itemBuilder: ((_, index) => ListTile(title: expensesCards[index])),
+          ))
         ],
       ),
     );
   }
 }
 
-class ExpanseCard extends StatelessWidget {
+class ExpanseCard extends StatefulWidget {
   String? name;
   double? cost;
   int? month;
-  String? id;
+  String? uid;
+  String? docid;
   int index;
+  var reset;
+  var delete;
 
+  double? getCost() {
+    return cost;
+  }
+
+  ExpanseCard({
+    Key? key,
+    this.name,
+    this.cost,
+    this.month,
+    this.uid,
+    this.docid,
+    required this.index,
+    required this.reset,
+    required this.delete,
+  }) : super(key: key);
+
+  @override
+  _ExpanseCardState createState() => _ExpanseCardState();
+}
+
+class _ExpanseCardState extends State<ExpanseCard> {
   // editing controller
   final TextEditingController nameCont = TextEditingController();
   final TextEditingController costCont = TextEditingController();
 
-  ExpanseCard(
-      {Key? key,
-      required this.name,
-      required this.cost,
-      required this.month,
-      required this.id,
-      required this.index
-      })
-      : super(key: key);
-
   @override
   Widget build(BuildContext context) {
+    String? name = widget.name;
+    double? cost = widget.cost;
+
     return Center(
       child: Card(
         clipBehavior: Clip.hardEdge,
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
           onTap: () {
-            // start modal func
-
             showModalBottomSheet(
                 isScrollControlled: true,
                 backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
+                shape: const RoundedRectangleBorder(
                   side: BorderSide(color: Colors.black),
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
                 context: context,
                 builder: (builder) => Container(
@@ -247,7 +508,7 @@ class ExpanseCard extends StatelessWidget {
                           SizedBox(
                             height: 45,
                             child: Container(
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
                                       color: Colors.black, width: 1.0),
@@ -260,8 +521,8 @@ class ExpanseCard extends StatelessWidget {
                                   Container(
                                     margin: EdgeInsets.only(left: 0),
                                     decoration: BoxDecoration(),
-                                    child: Text(
-                                      "\nAdd expense",
+                                    child: const Text(
+                                      "\nEdit expense",
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
@@ -273,13 +534,13 @@ class ExpanseCard extends StatelessWidget {
                             padding: EdgeInsets.only(bottom: 40),
                             child: Column(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   height: 10,
                                 ),
                                 Center(
                                   child: Container(),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 5,
                                 ),
                                 Padding(
@@ -300,7 +561,7 @@ class ExpanseCard extends StatelessWidget {
                                   child: TextFormField(
                                     decoration: const InputDecoration(
                                       border: UnderlineInputBorder(),
-                                      labelText: 'Budget',
+                                      labelText: 'Cost',
                                     ),
                                     keyboardType: TextInputType.number,
                                     inputFormatters: <TextInputFormatter>[
@@ -312,53 +573,74 @@ class ExpanseCard extends StatelessWidget {
                                   ),
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: ElevatedButton(
-                                    onPressed: () async {
-                                      final name = nameCont.text;
-                                      final double cost =
-                                          double.parse(costCont.text);
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 120, vertical: 10),
+                                  child: Row(children: [
+                                    Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: ElevatedButton(
+                                        onPressed: () async {
+                                          if (nameCont.text.isEmpty ||
+                                              costCont.text.isEmpty) {
+                                            Fluttertoast.showToast(
+                                                msg:
+                                                    "Please Fill all the info!");
+                                            return;
+                                          }
+                                          final name = nameCont.text;
+                                          final double cost =
+                                              double.parse(costCont.text);
 
-                                      FirebaseFirestore firebaseFirestore =
-                                          FirebaseFirestore.instance;
+                                          FirebaseFirestore firebaseFirestore =
+                                              FirebaseFirestore.instance;
+                                          Expense expenseModel = Expense(
+                                              name: name,
+                                              cost: cost,
+                                              month: widget.month,
+                                              uid: widget.uid,
+                                              docid: widget.docid);
 
-                                      Expense expenseModel = Expense(
-                                          name: name,
-                                          cost: cost,
-                                          month: month,
-                                          id: id);
+                                          await firebaseFirestore
+                                              .collection("Expense")
+                                              .doc(widget.docid)
+                                              .set(expenseModel.toMap());
+                                          Fluttertoast.showToast(
+                                              msg:
+                                                  "Expense Saved Successfully :) ");
 
-                                      // writing all the values
-                                      // userModel.email = user!.email;
-                                      // userModel.uid = user.uid;
-                                      // userModel.firstName = firstNameCont.text;
-                                      // userModel.secondName =
-                                      //     secondNameCont.text;
-                                      // uuid.v4()
-                                      await firebaseFirestore
-                                          .collection("Expense")
-                                          .doc(id)
-                                          .set(expenseModel.toMap());
-                                      Fluttertoast.showToast(
-                                          msg:
-                                              "Expense Saved Successfully :) ");
+                                          var eCC = ExpanseCard(
+                                            name: name,
+                                            cost: cost,
+                                            month: widget.month,
+                                            uid: widget.uid,
+                                            docid: widget.docid,
+                                            index: widget.index,
+                                            reset: widget.reset,
+                                            delete: widget.delete,
+                                          );
 
-                                      //expensesCards.contains(id) ? expensesCards[expensesCards.indexWhere((v) => v == id)] = replaceWith : expensesCards;
-                                      print(index);
-                                      expensesCards[index] = ExpanseCard(
-                                          name: name,
-                                          cost: cost,
-                                          month: month,
-                                          id: id,
-                                          index: expensesCards.length
-                                      );
+                                          widget.reset(eCC, widget.index);
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('Submit'),
+                                        style: ElevatedButton.styleFrom(
+                                            primary: Colors.green),
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        final docUser = FirebaseFirestore
+                                            .instance
+                                            .collection("Expense")
+                                            .doc(widget.docid)
+                                            .delete();
+                                        widget.delete(widget.index);
 
-
-
-
-                                    },
-                                    child: const Text('Submit'),
-                                  ),
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('Delete'),
+                                    )
+                                  ]),
                                 ),
                               ],
                             ),
@@ -366,9 +648,6 @@ class ExpanseCard extends StatelessWidget {
                         ]),
                       ]),
                     ));
-
-            //end modal func
-            debugPrint('Card tapped.');
           },
           child: SizedBox(
             width: 300,
@@ -383,4 +662,3 @@ class ExpanseCard extends StatelessWidget {
     );
   }
 }
-
